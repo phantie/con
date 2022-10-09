@@ -1,3 +1,6 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 pub trait RefNode {
     fn node_ref(&self) -> &Node;
 }
@@ -48,7 +51,7 @@ pub struct Con<T>
 where
     T: RefNode,
 {
-    pub targets: (T, T),
+    pub targets: (Rc<RefCell<T>>, Rc<RefCell<T>>),
 }
 
 impl<T> RefCon<T> for Con<T>
@@ -82,7 +85,7 @@ pub fn step(routes: &mut Vec<Route<City>>) {
     for route in routes.iter_mut() {
         let send = route.send;
 
-        route.con.targets.0.bank -= send;
-        route.con.targets.1.bank += send;
+        route.con.targets.0.borrow_mut().bank -= send;
+        route.con.targets.1.borrow_mut().bank += send;
     }
 }
