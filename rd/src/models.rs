@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use raylib::RaylibHandle;
 
 pub trait RefNode {
     fn node_ref(&self) -> &Node;
@@ -8,6 +9,8 @@ pub trait RefNode {
 #[derive(Debug)]
 pub struct Node {
     pub id: u32,
+    pub x: i32,
+    pub y: i32,
 }
 
 impl RefNode for Node {
