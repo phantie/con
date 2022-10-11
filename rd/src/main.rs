@@ -1,25 +1,13 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::time::Duration;
-
-mod node;
-use node::*;
-
 mod city;
 use city::*;
 
 mod route;
 use route::*;
 
-mod con;
-use con::*;
-
-mod gui;
-
-use std::thread;
-
 mod country;
 use country::*;
+
+use connect::*;
 
 fn clear_console() {
     print!("{}c", 27 as char);
@@ -109,7 +97,7 @@ fn main() {
             .iter()
             .for_each(|route| route.transmit());
 
-        thread::sleep(Duration::from_millis(500));
+        std::thread::sleep(std::time::Duration::from_millis(500));
     }
 
     // gui::display();
