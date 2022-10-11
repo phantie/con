@@ -1,25 +1,28 @@
 use crate::*;
 
-pub trait RefCon<T>
+pub trait RefCon<A, B>
 where
-    T: RefNode,
+    A: RefNode,
+    B: RefNode,
 {
-    fn con_ref(&self) -> &Con<T>;
+    fn con_ref(&self) -> &Con<A, B>;
 }
 
 #[derive(Debug)]
-pub struct Con<T>
+pub struct Con<A, B>
 where
-    T: RefNode,
+    A: RefNode,
+    B: RefNode,
 {
-    pub targets: (Rc<RefCell<T>>, Rc<RefCell<T>>),
+    pub targets: (Rc<RefCell<A>>, Rc<RefCell<B>>),
 }
 
-impl<T> RefCon<T> for Con<T>
+impl<A, B> RefCon<A, B> for Con<A, B>
 where
-    T: RefNode,
+    A: RefNode,
+    B: RefNode,
 {
-    fn con_ref(&self) -> &Con<T> {
+    fn con_ref(&self) -> &Con<A, B> {
         &self
     }
 }

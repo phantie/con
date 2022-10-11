@@ -18,6 +18,10 @@ mod gui;
 
 use std::thread;
 
+mod country;
+use country::*;
+
+
 fn clear_console() {
     print!("{}c", 27 as char);
 }
@@ -38,6 +42,11 @@ fn main() {
         x: 300,
         y: 400,
     };
+    let node_4 = Node {
+        id: 69,
+        x: 500,
+        y: 400,
+    };
 
     let city_1 = Rc::new(RefCell::new(City {
         node: &node_1,
@@ -54,6 +63,10 @@ fn main() {
         bank: 0,
     }));
 
+    let country_1  = Rc::new(RefCell::new(Country {
+        node: &node_4,
+        bank: 0,
+    }));
     // print_node(&node_1);
     // print_node(&*(*city_3).borrow());
 
@@ -63,6 +76,10 @@ fn main() {
 
     let con_2 = Con {
         targets: (Rc::clone(&city_1), Rc::clone(&city_3)),
+    };
+
+    let con_3 = Con {
+        targets: (Rc::clone(&city_1), Rc::clone(&country_1))
     };
 
     let route_1 = Route {

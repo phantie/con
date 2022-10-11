@@ -4,7 +4,7 @@ use crate::*;
 #[derive(Debug)]
 pub struct Route<'con, 'city>
 {
-    pub con: &'con Con<City<'city>>,
+    pub con: &'con Con<City<'city>, City<'city>>,
     pub send: u32,
 }
 
@@ -16,9 +16,9 @@ impl<'con, 'city> Route<'con, 'city>
     }
 }
 
-impl<'con, 'city> RefCon<City<'city>> for Route<'con, 'city>
+impl<'con, 'city> RefCon<City<'city>, City<'city>> for Route<'con, 'city>
 {
-    fn con_ref(&self) -> &'con Con<City<'city>> {
+    fn con_ref(&self) -> &'con Con<City<'city>, City<'city>> {
         &self.con
     }
 }
