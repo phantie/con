@@ -21,7 +21,6 @@ use std::thread;
 mod country;
 use country::*;
 
-
 fn clear_console() {
     print!("{}c", 27 as char);
 }
@@ -63,7 +62,7 @@ fn main() {
         bank: 0,
     }));
 
-    let country_1  = Rc::new(RefCell::new(Country {
+    let country_1 = Rc::new(RefCell::new(Country {
         node: &node_4,
         bank: 0,
     }));
@@ -79,7 +78,7 @@ fn main() {
     };
 
     let con_3 = Con {
-        targets: (Rc::clone(&city_1), Rc::clone(&country_1))
+        targets: (Rc::clone(&country_1), Rc::clone(&city_1)),
     };
 
     let route_1 = Route {
@@ -90,16 +89,26 @@ fn main() {
         con: &con_2,
         send: 20,
     };
+    let route_3 = Route {
+        con: &con_3,
+        send: 50,
+    };
 
-    let routes = vec![route_1, route_2];
+    let city_routes = vec![route_1, route_2];
 
+    let country_city_routes = vec![route_3];
 
     loop {
         clear_console();
         print_city(&city_1);
         print_city(&city_2);
         print_city(&city_3);
-        route::step_all(&routes);
+        print_country(&country_1);
+        city_routes.iter().for_each(|route| route.transmit());
+        country_city_routes
+            .iter()
+            .for_each(|route| route.transmit());
+
         thread::sleep(Duration::from_millis(500));
     }
 

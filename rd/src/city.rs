@@ -1,4 +1,3 @@
-
 use crate::*;
 
 #[derive(Debug)]
@@ -18,7 +17,6 @@ impl<'n> std::fmt::Display for City<'n> {
         write!(f, "City({}, bank={})", self.node.id, self.bank)
     }
 }
-
 
 pub fn print_city(city: &Rc<RefCell<City>>) {
     println!("{}", &*(*city).borrow());

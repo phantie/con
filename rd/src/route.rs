@@ -1,28 +1,42 @@
-
 use crate::*;
 
 #[derive(Debug)]
-pub struct Route<'con, 'city>
+pub struct Route<'con, A, B>
+where
+    A: RefNode,
+    B: RefNode,
 {
-    pub con: &'con Con<City<'city>, City<'city>>,
+    pub con: &'con Con<A, B>,
     pub send: u32,
 }
 
-impl<'con, 'city> Route<'con, 'city>
-{
-    fn transmit(&self) {
+impl<'con, 'city> Route<'con, City<'city>, City<'city>> {
+    pub fn transmit(&self) {
         self.con.targets.0.borrow_mut().bank -= self.send as i32;
         self.con.targets.1.borrow_mut().bank += self.send as i32;
     }
 }
 
-impl<'con, 'city> RefCon<City<'city>, City<'city>> for Route<'con, 'city>
-{
-    fn con_ref(&self) -> &'con Con<City<'city>, City<'city>> {
-        &self.con
+impl<'con, 'city, 'country> Route<'con, City<'city>, Country<'country>> {
+    pub fn transmit(&self) {
+        self.con.targets.0.borrow_mut().bank -= self.send as i32;
+        self.con.targets.1.borrow_mut().bank += self.send as i32;
     }
 }
 
-pub fn step_all<'a>(routes: &Vec<Route>) {
-    routes.iter().for_each(Route::transmit);
+impl<'con, 'city, 'country> Route<'con, Country<'country>, City<'city>> {
+    pub fn transmit(&self) {
+        self.con.targets.0.borrow_mut().bank -= self.send as i32;
+        self.con.targets.1.borrow_mut().bank += self.send as i32;
+    }
+}
+
+impl<'con, A, B> RefCon<A, B> for Route<'con, A, B>
+where
+    A: RefNode,
+    B: RefNode,
+{
+    fn con_ref(&self) -> &'con Con<A, B> {
+        &self.con
+    }
 }
