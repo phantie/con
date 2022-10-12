@@ -82,9 +82,9 @@ fn main() {
         send: 50,
     };
 
-    let city_routes = vec![route_1, route_2];
+    let city_routes = vec![&route_1, &route_2];
 
-    let country_city_routes = vec![route_3];
+    let country_city_routes = vec![&route_3];
 
     loop {
         clear_console();

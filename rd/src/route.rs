@@ -10,22 +10,22 @@ where
     pub send: u32,
 }
 
-impl<'con, 'city> Route<'con, City<'city>, City<'city>> {
-    pub fn transmit(&self) {
+impl<'con, 'city> Transmit for Route<'con, City<'city>, City<'city>> {
+    fn transmit(&self) {
         self.con.targets.0.borrow_mut().bank -= self.send as i32;
         self.con.targets.1.borrow_mut().bank += self.send as i32;
     }
 }
 
-impl<'con, 'city, 'country> Route<'con, City<'city>, Country<'country>> {
-    pub fn transmit(&self) {
+impl<'con, 'city, 'country> Transmit for Route<'con, City<'city>, Country<'country>> {
+    fn transmit(&self) {
         self.con.targets.0.borrow_mut().bank -= self.send as i32;
         self.con.targets.1.borrow_mut().bank += self.send as i32;
     }
 }
 
-impl<'con, 'city, 'country> Route<'con, Country<'country>, City<'city>> {
-    pub fn transmit(&self) {
+impl<'con, 'city, 'country> Transmit for Route<'con, Country<'country>, City<'city>> {
+    fn transmit(&self) {
         self.con.targets.0.borrow_mut().bank -= self.send as i32;
         self.con.targets.1.borrow_mut().bank += self.send as i32;
     }

@@ -26,3 +26,7 @@ where
         &self
     }
 }
+
+pub trait Transmit {
+    fn transmit(&self);
+}
