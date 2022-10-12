@@ -138,6 +138,8 @@ pub fn display() {
             d.draw_fps(wv - 100, 30);
         }
 
-        step_all(&mut routes);
+        for route in &routes {
+            route.transmit();
+        }
     }
 }

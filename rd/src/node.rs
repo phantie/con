@@ -15,7 +15,6 @@ impl RefNode for Node {
     }
 }
 
-
 pub fn print_node(o: &impl RefNode) {
     let node = o.node_ref();
     dbg!(node);
