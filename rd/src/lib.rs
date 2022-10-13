@@ -1,8 +1,13 @@
-pub mod con;
-pub mod node;
-
-pub use con::*;
+mod node;
 pub use node::*;
 
-pub use std::cell::RefCell;
-pub use std::rc::Rc;
+mod con;
+pub use con::*;
+
+pub trait Transmit {
+    fn transmit(&self);
+}
+
+pub fn clear_console() {
+    print!("{}c", 27 as char);
+}

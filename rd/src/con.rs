@@ -1,4 +1,6 @@
-use crate::*;
+use crate::node::*;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 pub trait RefCon<A, B>
 where
@@ -25,8 +27,4 @@ where
     fn con_ref(&self) -> &Con<A, B> {
         &self
     }
-}
-
-pub trait Transmit {
-    fn transmit(&self);
 }
