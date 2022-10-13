@@ -156,9 +156,13 @@ pub fn main() {
         send: 50,
     };
 
-    let city_routes = vec![&route_1, &route_2];
+    let _ = con_like_to_node_tuple(&route_1);
 
-    let country_city_routes = vec![&route_3];
+    let city_routes = [&route_1, &route_2];
+    let _ = cons_to_edge_set(&city_routes);
+    let _ = cons_to_edge_set(&[&con_2, &con_1]);
+
+    let country_city_routes = [&route_3];
 
     loop {
         clear_console();
@@ -166,9 +170,9 @@ pub fn main() {
         print_city(&city_2);
         print_city(&city_3);
         print_country(&country_1);
-        city_routes.iter().for_each(|route| route.transmit());
+        city_routes.into_iter().for_each(|route| route.transmit());
         country_city_routes
-            .iter()
+            .into_iter()
             .for_each(|route| route.transmit());
 
         std::thread::sleep(std::time::Duration::from_millis(500));

@@ -2,7 +2,7 @@ pub trait RefNode {
     fn node_ref(&self) -> &Node;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Node {
     pub id: u32,
     pub x: i32,
