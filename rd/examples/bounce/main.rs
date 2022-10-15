@@ -39,6 +39,32 @@ impl<'n> Bouncer<'n> {
     }
 }
 
+fn handle_box_collision(b: &mut Bouncer, ww: i32, wh: i32) {
+    fn box_x_collision(b: &Bouncer, ww: i32) -> bool {
+        b.pos.x - b.r <= 0f32 || b.pos.x + b.r >= ww as f32
+    }
+
+    fn box_y_collision(b: &Bouncer, wh: i32) -> bool {
+        b.pos.y - b.r <= 0f32 || b.pos.y + b.r >= wh as f32
+    }
+
+    fn handle_box_collision_x(b: &mut Bouncer) {
+        b.vel.x = -b.vel.x;
+    }
+
+    fn handle_box_collision_y(b: &mut Bouncer) {
+        b.vel.y = -b.vel.y;
+    }
+
+    if box_x_collision(b, ww) {
+        handle_box_collision_x(b);
+    }
+
+    if box_y_collision(b, wh) {
+        handle_box_collision_y(b);
+    }
+}
+
 // random point on circle circumference
 // for smooth velocity regarding both axes
 fn norm_random_velocity(rng: &mut ThreadRng) -> Vector2 {
@@ -60,13 +86,13 @@ fn main() {
             x: (ww / 2) as f32,
             y: (wh / 2) as f32,
         },
-        vel: norm_random_velocity(&mut rng) * 150.0,
+        vel: norm_random_velocity(&mut rng) * 700.0,
         acc: Vector2::zero(),
         r: 20.0,
         color: Color::WHITE,
     };
 
-    let (mut rl, thread) = raylib::init().size(ww, wh).build();
+    let (mut rl, thread) = raylib::init().size(ww, wh).title("Bouncer").build();
 
     dbg!(&bouncer.vel);
 
@@ -80,5 +106,6 @@ fn main() {
         bouncer.draw(&mut d);
         bouncer.upd_vel(dt);
         bouncer.upd_pos(dt);
+        handle_box_collision(&mut bouncer, ww, wh);
     }
 }
