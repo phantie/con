@@ -2,7 +2,6 @@ use crate::con::*;
 use crate::node::*;
 use std::collections::HashSet;
 
-
 pub fn con_like_to_node_tuple<C, A, B>(con: &C) -> (Node, Node)
 where
     C: RefCon<A, B>,

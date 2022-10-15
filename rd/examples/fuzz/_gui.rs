@@ -1,36 +1,31 @@
 use crate::*;
 use raylib::prelude::*;
 
+#[allow(dead_code)]
 pub fn display() {
-    let node_1 = Node {
-        id: 13,
-        x: 100,
-        y: 100,
-    };
-    let node_2 = Node {
-        id: 42,
-        x: 300,
-        y: 100,
-    };
-    let node_3 = Node {
-        id: 17,
-        x: 300,
-        y: 400,
-    };
+    let node_1 = Node { id: 13 };
+    let node_2 = Node { id: 42 };
+    let node_3 = Node { id: 17 };
 
     let city_1 = Rc::new(RefCell::new(City {
         node: &node_1,
         bank: 0,
+        x: 100,
+        y: 100,
     }));
 
     let city_2 = Rc::new(RefCell::new(City {
         node: &node_2,
         bank: 0,
+        x: 300,
+        y: 100,
     }));
 
     let city_3 = Rc::new(RefCell::new(City {
         node: &node_3,
         bank: 0,
+        x: 300,
+        y: 400,
     }));
 
     print_node(&node_1);
@@ -53,7 +48,7 @@ pub fn display() {
         send: 20,
     };
 
-    let mut routes = vec![route_1, route_2];
+    let routes = vec![route_1, route_2];
 
     let (wv, wh) = (900, 600);
     let (mut rl, thread) = raylib::init().size(wv, wh).title("Hello, World").build();
@@ -71,10 +66,7 @@ pub fn display() {
 
             let (target_0, target_1) = targets;
             let city_0 = (**target_0).borrow();
-            let node_0 = city_0.node_ref();
-
             let city_1 = (**target_1).borrow();
-            let node_1 = city_1.node_ref();
 
             let node_h = 50;
             let node_w = 50;
@@ -82,38 +74,38 @@ pub fn display() {
             let node_r = node_h / 2;
 
             d.draw_circle(
-                node_0.x + node_w / 2,
-                node_0.y + node_h / 2,
+                city_0.x + node_w / 2,
+                city_0.y + node_h / 2,
                 node_r as f32,
                 Color::WHITE,
             );
             d.draw_circle(
-                node_1.x + node_w / 2,
-                node_1.y + node_h / 2,
+                city_1.x + node_w / 2,
+                city_1.y + node_h / 2,
                 node_r as f32,
                 Color::WHITE,
             );
 
             d.draw_line(
-                node_0.x + (node_w / 2),
-                node_0.y + (node_h / 2),
-                node_1.x + (node_w / 2),
-                node_1.y + (node_h / 2),
+                city_0.x + (node_w / 2),
+                city_0.y + (node_h / 2),
+                city_1.x + (node_w / 2),
+                city_1.y + (node_h / 2),
                 Color::WHITE,
             );
 
             d.draw_circle(
-                (node_0.x + node_1.x + node_w) / 2,
-                (node_0.y + node_1.y + node_h) / 2,
+                (city_0.x + city_1.x + node_w) / 2,
+                (city_0.y + city_1.y + node_h) / 2,
                 20.0,
                 Color::WHITE,
             );
 
             d.draw_text(
                 route.send.to_string().as_str(),
-                (node_0.x + node_1.x + node_w - measure_text(route.send.to_string().as_str(), 15))
+                (city_0.x + city_1.x + node_w - measure_text(route.send.to_string().as_str(), 15))
                     / 2,
-                (node_0.y + node_1.y + node_h - measure_text(route.send.to_string().as_str(), 15))
+                (city_0.y + city_1.y + node_h - measure_text(route.send.to_string().as_str(), 15))
                     / 2,
                 15,
                 Color::BLACK,
@@ -121,16 +113,16 @@ pub fn display() {
 
             d.draw_text(
                 city_0.bank.to_string().as_str(),
-                node_0.x + node_r - (measure_text(city_0.bank.to_string().as_str(), 15) / 2),
-                node_0.y + node_r - (15 / 2),
+                city_0.x + node_r - (measure_text(city_0.bank.to_string().as_str(), 15) / 2),
+                city_0.y + node_r - (15 / 2),
                 15,
                 Color::BLACK,
             );
 
             d.draw_text(
                 city_1.bank.to_string().as_str(),
-                node_1.x + node_r - (measure_text(city_1.bank.to_string().as_str(), 15) / 2),
-                node_1.y + node_r - (15 / 2),
+                city_1.x + node_r - (measure_text(city_1.bank.to_string().as_str(), 15) / 2),
+                city_1.y + node_r - (15 / 2),
                 15,
                 Color::BLACK,
             );

@@ -2,10 +2,14 @@ use connect::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+mod _gui;
+
 #[derive(Debug)]
 pub struct City<'n> {
     pub bank: i32,
     pub node: &'n Node,
+    pub x: i32,
+    pub y: i32,
 }
 
 impl<'n> RefNode for City<'n> {
@@ -28,6 +32,8 @@ pub fn print_city(city: &Rc<RefCell<City>>) {
 pub struct Country<'n> {
     pub bank: i32,
     pub node: &'n Node,
+    pub x: i32,
+    pub y: i32,
 }
 
 impl<'n> RefNode for Country<'n> {
@@ -88,45 +94,37 @@ where
 }
 
 pub fn main() {
-    let node_1 = Node {
-        id: 13,
-        x: 100,
-        y: 100,
-    };
-    let node_2 = Node {
-        id: 42,
-        x: 300,
-        y: 100,
-    };
-    let node_3 = Node {
-        id: 17,
-        x: 300,
-        y: 400,
-    };
-    let node_4 = Node {
-        id: 69,
-        x: 500,
-        y: 400,
-    };
+    let node_1 = Node { id: 13 };
+    let node_2 = Node { id: 42 };
+    let node_3 = Node { id: 17 };
+    let node_4 = Node { id: 69 };
 
     let city_1 = Rc::new(RefCell::new(City {
         node: &node_1,
         bank: 0,
+        x: 100,
+        y: 100,
     }));
 
     let city_2 = Rc::new(RefCell::new(City {
         node: &node_2,
         bank: 0,
+        x: 300,
+        y: 100,
     }));
 
     let city_3 = Rc::new(RefCell::new(City {
         node: &node_3,
         bank: 0,
+        x: 300,
+        y: 400,
     }));
 
     let country_1 = Rc::new(RefCell::new(Country {
         node: &node_4,
         bank: 0,
+        x: 500,
+        y: 400,
     }));
     // print_node(&node_1);
     // print_node(&*(*city_3).borrow());
