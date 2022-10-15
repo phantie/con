@@ -45,6 +45,31 @@ impl<'n> Bouncer<'n> {
     fn collides_with_other_bouncer(&self, other: &Self) -> bool {
         self.pos.distance_to(other.pos) <= self.r + other.r
     }
+
+    fn handle_collided_bouncers(&mut self, other: &mut Self) {
+        let tangent_vector = Vector2 {
+            x: other.pos.y - self.pos.y,
+            y: -(other.pos.x - self.pos.x),
+        }
+        .normalized();
+
+        let relative_velocity = Vector2 {
+            x: other.pos.x - self.pos.x,
+            y: other.pos.y - self.pos.y,
+        };
+
+        let length = tangent_vector.dot(relative_velocity);
+
+        let velocity_component_on_tangent = tangent_vector.scale_by(length);
+
+        let velocity_component_pependicular_to_tangent =
+            relative_velocity - velocity_component_on_tangent;
+
+        self.vel.x -= velocity_component_pependicular_to_tangent.x;
+        self.vel.y -= velocity_component_pependicular_to_tangent.y;
+        other.vel.x += velocity_component_pependicular_to_tangent.x;
+        other.vel.y += velocity_component_pependicular_to_tangent.y;
+    }
 }
 
 fn handle_box_collision(b: &mut Bouncer, ww: i32, wh: i32) {
@@ -93,7 +118,7 @@ fn main() {
             x: (ww / 2) as f32 - 100.0,
             y: (wh / 2) as f32,
         },
-        vel: norm_random_velocity(&mut rng) * 700.0,
+        vel: norm_random_velocity(&mut rng) * 200.0,
         acc: Vector2::zero(),
         r: 60.0,
         color: Color::BLUE,
@@ -132,9 +157,8 @@ fn main() {
         handle_box_collision(&mut bouncer_beta, ww, wh);
 
         if bouncer_alpha.collides_with_other_bouncer(&bouncer_beta) {
-            bouncer_alpha.vel = -bouncer_alpha.vel;
-            bouncer_beta.vel = -bouncer_beta.vel;
-            bouncer_alpha.switch_colors(&mut bouncer_beta);
+            bouncer_alpha.handle_collided_bouncers(&mut bouncer_beta);
+            // bouncer_alpha.switch_colors(&mut bouncer_beta);
         }
     }
 }
