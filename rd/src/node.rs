@@ -64,4 +64,19 @@ mod tests {
         h.insert(&node_1);
         assert_eq!(h.len(), 2);
     }
+
+    #[test]
+    fn test_node_tuple_hash() {
+        let node_0 = Node { id: 0, x: 0, y: 0 };
+        let node_1 = Node { id: 1, x: 0, y: 0 };
+        let node_2 = Node { id: 2, x: 0, y: 0 };
+        let mut h = HashSet::new();
+        assert_eq!(h.len(), 0);
+        h.insert((&node_0, &node_1));
+        assert_eq!(h.len(), 1);
+        h.insert((&node_0, &node_1));
+        assert_eq!(h.len(), 1);
+        h.insert((&node_1, &node_2));
+        assert_eq!(h.len(), 2);
+    }
 }

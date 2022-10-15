@@ -1,5 +1,7 @@
 use crate::con::*;
 use crate::node::*;
+use std::collections::HashSet;
+
 
 pub fn con_like_to_node_tuple<C, A, B>(con: &C) -> (Node, Node)
 where
@@ -13,7 +15,7 @@ where
     return (t0.node_ref().clone(), t1.node_ref().clone());
 }
 
-pub fn cons_to_edge_set<C, A, B>(cons: &[&C]) -> Vec<(Node, Node)>
+pub fn cons_to_edge_set<C, A, B>(cons: &[&C]) -> HashSet<(Node, Node)>
 where
     C: RefCon<A, B>,
     A: RefNode,
@@ -21,5 +23,5 @@ where
 {
     cons.iter()
         .map(|con| con_like_to_node_tuple(*con))
-        .collect::<Vec<_>>()
+        .collect::<HashSet<_>>()
 }
