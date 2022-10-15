@@ -46,7 +46,7 @@ impl<'n> Bouncer<'n> {
         self.pos.distance_to(other.pos) <= self.r + other.r
     }
 
-    fn handle_collided_bouncers(&mut self, other: &mut Self) {
+    fn handle_collided_bouncers(&mut self, other: &mut Self, c: f32) {
         let tangent_vector = Vector2 {
             x: other.pos.y - self.pos.y,
             y: -(other.pos.x - self.pos.x),
@@ -69,8 +69,14 @@ impl<'n> Bouncer<'n> {
         self.vel.y -= velocity_component_pependicular_to_tangent.y;
         other.vel.x += velocity_component_pependicular_to_tangent.x;
         other.vel.y += velocity_component_pependicular_to_tangent.y;
+        // solves problem with slow speed up with time up to infinity
+        self.vel.normalize();
+        self.vel *= c;
+        other.vel.normalize();
+        other.vel *= c;
     }
 }
+
 
 fn handle_box_collision(b: &mut Bouncer, ww: i32, wh: i32) {
     fn box_x_collision(b: &Bouncer, ww: i32) -> bool {
@@ -111,6 +117,8 @@ fn main() {
     #[allow(unused_variables)]
     let dt = 1f32 / fps as f32;
 
+    let vel_c = 350.0;
+
     #[allow(unused_mut)]
     let mut bouncer_alpha = Bouncer {
         node: &Node { id: 0 },
@@ -131,7 +139,7 @@ fn main() {
             x: (ww / 2) as f32 + 100.0,
             y: (wh / 2) as f32,
         },
-        vel: norm_random_velocity(&mut rng) * 700.0,
+        vel: norm_random_velocity(&mut rng) * vel_c,
         acc: Vector2::zero(),
         r: 60.0,
         color: Color::ORANGE,
@@ -147,18 +155,18 @@ fn main() {
         d.draw_fps(ww - 90, 15);
 
         bouncer_alpha.draw(&mut d);
-        bouncer_alpha.upd_vel(dt);
-        bouncer_alpha.upd_pos(dt);
-        handle_box_collision(&mut bouncer_alpha, ww, wh);
-
         bouncer_beta.draw(&mut d);
-        bouncer_beta.upd_vel(dt);
-        bouncer_beta.upd_pos(dt);
-        handle_box_collision(&mut bouncer_beta, ww, wh);
-
+        
         if bouncer_alpha.collides_with_other_bouncer(&bouncer_beta) {
-            bouncer_alpha.handle_collided_bouncers(&mut bouncer_beta);
+            bouncer_alpha.handle_collided_bouncers(&mut bouncer_beta, vel_c);
             // bouncer_alpha.switch_colors(&mut bouncer_beta);
         }
+
+        handle_box_collision(&mut bouncer_alpha, ww, wh);
+        handle_box_collision(&mut bouncer_beta, ww, wh);
+        // bouncer_alpha.upd_vel(dt);
+        // bouncer_beta.upd_vel(dt);
+        bouncer_alpha.upd_pos(dt);
+        bouncer_beta.upd_pos(dt);
     }
 }
