@@ -8,6 +8,9 @@ use raylib::prelude::*;
 use std::cell::RefCell;
 use std::f32::consts::PI;
 use std::rc::Rc;
+use std::vec;
+mod colors;
+use colors::COLORS;
 
 #[derive(Debug)]
 pub struct Bouncer<'n> {
@@ -76,31 +79,31 @@ impl<'n> Bouncer<'n> {
         other.vel.normalize();
         other.vel *= c;
     }
-}
 
-fn handle_box_collision(b: &mut Bouncer, ww: i32, wh: i32) {
-    fn box_x_collision(b: &Bouncer, ww: i32) -> bool {
-        b.pos.x - b.r <= 0f32 || b.pos.x + b.r >= ww as f32
-    }
+    fn handle_box_collision(&mut self, ww: i32, wh: i32) {
+        fn box_x_collision(b: &Bouncer, ww: i32) -> bool {
+            b.pos.x - b.r <= 0f32 || b.pos.x + b.r >= ww as f32
+        }
 
-    fn box_y_collision(b: &Bouncer, wh: i32) -> bool {
-        b.pos.y - b.r <= 0f32 || b.pos.y + b.r >= wh as f32
-    }
+        fn box_y_collision(b: &Bouncer, wh: i32) -> bool {
+            b.pos.y - b.r <= 0f32 || b.pos.y + b.r >= wh as f32
+        }
 
-    fn handle_box_collision_x(b: &mut Bouncer) {
-        b.vel.x = -b.vel.x;
-    }
+        fn handle_box_collision_x(b: &mut Bouncer) {
+            b.vel.x = -b.vel.x;
+        }
 
-    fn handle_box_collision_y(b: &mut Bouncer) {
-        b.vel.y = -b.vel.y;
-    }
+        fn handle_box_collision_y(b: &mut Bouncer) {
+            b.vel.y = -b.vel.y;
+        }
 
-    if box_x_collision(b, ww) {
-        handle_box_collision_x(b);
-    }
+        if box_x_collision(self, ww) {
+            handle_box_collision_x(self);
+        }
 
-    if box_y_collision(b, wh) {
-        handle_box_collision_y(b);
+        if box_y_collision(self, wh) {
+            handle_box_collision_y(self);
+        }
     }
 }
 
@@ -136,22 +139,32 @@ fn gen_available_positions(ww: i32, wh: i32, max_r: f32) -> Vec<Vector2> {
     all
 }
 
+fn pick_random<T>(rng: &mut ThreadRng, value: &[T]) -> T
+where
+    T: Copy,
+{
+    *value.choose_multiple(rng, 1).next().unwrap()
+}
+
 fn main() {
-    let (ww, wh) = (500, 500);
-    let mut rng = rand::thread_rng();
+    let (ww, wh) = (700, 700);
+    const VEL: f32 = 1.0;
     let fps = 60;
-    #[allow(unused_variables)]
+    let bouncer_number: usize = 40;
+    let radiuses: Vec<_> = (15..=25).step_by(5).map(|n| n as f32).collect();
+
+    let mut rng = rand::thread_rng();
     let dt = 1f32 / fps as f32;
+    let max_r = *radiuses
+        .iter()
+        .max_by(|f, s| f.partial_cmp(s).unwrap_or(std::cmp::Ordering::Equal))
+        .unwrap();
 
-    let vel_c = 150.0;
-
-    let mut q = gen_available_positions(ww, wh, 60.0);
-
-    q.shuffle(&mut rng);
-
-    let mut available_positions = q.into_iter();
-
-    let bouncer_number: usize = 3;
+    let mut available_positions = {
+        let mut available_positions = gen_available_positions(ww, wh, max_r);
+        available_positions.shuffle(&mut rng);
+        available_positions.into_iter()
+    };
 
     let mut bouncers = vec![];
 
@@ -167,10 +180,10 @@ fn main() {
             pos: available_positions
                 .next()
                 .expect("Not enough available positions on a plot"),
-            vel: norm_random_velocity(&mut rng) * vel_c,
+            vel: norm_random_velocity(&mut rng) * VEL,
             acc: Vector2::zero(),
-            r: 60.0,
-            color: Color::BLUE,
+            r: pick_random(&mut rng, &radiuses),
+            color: pick_random(&mut rng, &COLORS),
         };
 
         bouncers.push(bouncer);
@@ -183,7 +196,6 @@ fn main() {
     while !rl.window_should_close() {
         let mut d = rl.begin_drawing(&thread);
         d.clear_background(Color::BLACK);
-        d.draw_fps(ww - 90, 15);
 
         for bouncer in &bouncers {
             bouncer.draw(&mut d);
@@ -191,7 +203,7 @@ fn main() {
 
         if bouncers.len() == 1 {
             let bouncer = &mut bouncers[0];
-            handle_box_collision(bouncer, ww, wh);
+            bouncer.handle_box_collision(ww, wh);
             bouncer.upd_pos(dt);
             continue;
         }
@@ -208,17 +220,18 @@ fn main() {
                 let b2 = &mut b[j - i - 1];
 
                 if b1.collides_with_other_bouncer(&b2) {
-                    b1.handle_collided_bouncers(b2, vel_c);
+                    b1.handle_collided_bouncers(b2, VEL);
                     b1.swap_colors(b2);
                 }
 
-                handle_box_collision(b1, ww, wh);
-                handle_box_collision(b2, ww, wh);
+                b1.handle_box_collision(ww, wh);
+                b2.handle_box_collision(ww, wh);
                 // // b1.upd_vel(dt);
                 // // b1.upd_vel(dt);
                 b1.upd_pos(dt);
                 b2.upd_pos(dt);
             }
         }
+        d.draw_fps(ww - 90, 15);
     }
 }
