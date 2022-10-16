@@ -2,6 +2,7 @@
 
 use connect::*;
 use rand::rngs::ThreadRng;
+use rand::seq::SliceRandom;
 use rand::Rng;
 use raylib::prelude::*;
 use std::cell::RefCell;
@@ -38,7 +39,7 @@ impl<'n> Bouncer<'n> {
         self.pos = self.pos + self.vel * dt;
     }
 
-    fn switch_colors(&mut self, other: &mut Self) {
+    fn swap_colors(&mut self, other: &mut Self) {
         (self.color, other.color) = (other.color, self.color);
     }
 
@@ -77,7 +78,6 @@ impl<'n> Bouncer<'n> {
     }
 }
 
-
 fn handle_box_collision(b: &mut Bouncer, ww: i32, wh: i32) {
     fn box_x_collision(b: &Bouncer, ww: i32) -> bool {
         b.pos.x - b.r <= 0f32 || b.pos.x + b.r >= ww as f32
@@ -110,6 +110,32 @@ fn norm_random_velocity(rng: &mut ThreadRng) -> Vector2 {
     Vector2::new(angle.cos(), angle.sin())
 }
 
+fn gen_available_positions(ww: i32, wh: i32, max_r: f32) -> Vec<Vector2> {
+    let mut all: Vec<Vector2> = vec![];
+
+    let ww = ww as f32;
+    let wh = wh as f32;
+
+    let mut x = max_r;
+    let mut y = max_r;
+
+    loop {
+        if x + max_r <= ww {
+            all.push(Vector2::new(x, y));
+            x += 2.0 * max_r;
+        } else {
+            if y + max_r + 2.0 * max_r <= wh {
+                x = max_r;
+                y += 2.0 * max_r;
+            } else {
+                break;
+            }
+        }
+    }
+
+    all
+}
+
 fn main() {
     let (ww, wh) = (500, 500);
     let mut rng = rand::thread_rng();
@@ -117,33 +143,38 @@ fn main() {
     #[allow(unused_variables)]
     let dt = 1f32 / fps as f32;
 
-    let vel_c = 350.0;
+    let vel_c = 150.0;
 
-    #[allow(unused_mut)]
-    let mut bouncer_alpha = Bouncer {
-        node: &Node { id: 0 },
-        pos: Vector2 {
-            x: (ww / 2) as f32 - 100.0,
-            y: (wh / 2) as f32,
-        },
-        vel: norm_random_velocity(&mut rng) * 200.0,
-        acc: Vector2::zero(),
-        r: 60.0,
-        color: Color::BLUE,
-    };
+    let mut q = gen_available_positions(ww, wh, 60.0);
 
-    #[allow(unused_mut)]
-    let mut bouncer_beta = Bouncer {
-        node: &Node { id: 0 },
-        pos: Vector2 {
-            x: (ww / 2) as f32 + 100.0,
-            y: (wh / 2) as f32,
-        },
-        vel: norm_random_velocity(&mut rng) * vel_c,
-        acc: Vector2::zero(),
-        r: 60.0,
-        color: Color::ORANGE,
-    };
+    q.shuffle(&mut rng);
+
+    let mut available_positions = q.into_iter();
+
+    let bouncer_number: usize = 3;
+
+    let mut bouncers = vec![];
+
+    let nodes = (0..bouncer_number)
+        .into_iter()
+        .map(|id| Node { id: id as u32 })
+        .collect::<Vec<_>>();
+
+    for id in 0..bouncer_number {
+        #[allow(unused_mut)]
+        let bouncer = Bouncer {
+            node: &nodes[id],
+            pos: available_positions
+                .next()
+                .expect("Not enough available positions on a plot"),
+            vel: norm_random_velocity(&mut rng) * vel_c,
+            acc: Vector2::zero(),
+            r: 60.0,
+            color: Color::BLUE,
+        };
+
+        bouncers.push(bouncer);
+    }
 
     let (mut rl, thread) = raylib::init().size(ww, wh).title("Bouncer").build();
 
@@ -154,19 +185,40 @@ fn main() {
         d.clear_background(Color::BLACK);
         d.draw_fps(ww - 90, 15);
 
-        bouncer_alpha.draw(&mut d);
-        bouncer_beta.draw(&mut d);
-        
-        if bouncer_alpha.collides_with_other_bouncer(&bouncer_beta) {
-            bouncer_alpha.handle_collided_bouncers(&mut bouncer_beta, vel_c);
-            // bouncer_alpha.switch_colors(&mut bouncer_beta);
+        for bouncer in &bouncers {
+            bouncer.draw(&mut d);
         }
 
-        handle_box_collision(&mut bouncer_alpha, ww, wh);
-        handle_box_collision(&mut bouncer_beta, ww, wh);
-        // bouncer_alpha.upd_vel(dt);
-        // bouncer_beta.upd_vel(dt);
-        bouncer_alpha.upd_pos(dt);
-        bouncer_beta.upd_pos(dt);
+        if bouncers.len() == 1 {
+            let bouncer = &mut bouncers[0];
+            handle_box_collision(bouncer, ww, wh);
+            bouncer.upd_pos(dt);
+            continue;
+        }
+
+        for i in 0..bouncers.len() {
+            for j in 0..bouncers.len() {
+                if i == j || i > j {
+                    continue;
+                }
+
+                let (a, b) = bouncers.split_at_mut(i + 1);
+
+                let b1 = &mut a[i];
+                let b2 = &mut b[j - i - 1];
+
+                if b1.collides_with_other_bouncer(&b2) {
+                    b1.handle_collided_bouncers(b2, vel_c);
+                    b1.swap_colors(b2);
+                }
+
+                handle_box_collision(b1, ww, wh);
+                handle_box_collision(b2, ww, wh);
+                // // b1.upd_vel(dt);
+                // // b1.upd_vel(dt);
+                b1.upd_pos(dt);
+                b2.upd_pos(dt);
+            }
+        }
     }
 }
