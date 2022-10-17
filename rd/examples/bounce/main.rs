@@ -201,37 +201,37 @@ fn main() {
             bouncer.draw(&mut d);
         }
 
+        d.draw_fps(ww - 90, 15);
+
         if bouncers.len() == 1 {
             let bouncer = &mut bouncers[0];
             bouncer.handle_box_collision(ww, wh);
             bouncer.upd_pos(dt);
-            continue;
-        }
+        } else {
+            for i in 0..bouncers.len() {
+                for j in 0..bouncers.len() {
+                    if i == j || i > j {
+                        continue;
+                    }
 
-        for i in 0..bouncers.len() {
-            for j in 0..bouncers.len() {
-                if i == j || i > j {
-                    continue;
+                    let (a, b) = bouncers.split_at_mut(i + 1);
+
+                    let b1 = &mut a[i];
+                    let b2 = &mut b[j - i - 1];
+
+                    if b1.collides_with_other_bouncer(&b2) {
+                        b1.handle_collided_bouncers(b2, VEL);
+                        b1.swap_colors(b2);
+                    }
+
+                    b1.handle_box_collision(ww, wh);
+                    b2.handle_box_collision(ww, wh);
+                    // // b1.upd_vel(dt);
+                    // // b1.upd_vel(dt);
+                    b1.upd_pos(dt);
+                    b2.upd_pos(dt);
                 }
-
-                let (a, b) = bouncers.split_at_mut(i + 1);
-
-                let b1 = &mut a[i];
-                let b2 = &mut b[j - i - 1];
-
-                if b1.collides_with_other_bouncer(&b2) {
-                    b1.handle_collided_bouncers(b2, VEL);
-                    b1.swap_colors(b2);
-                }
-
-                b1.handle_box_collision(ww, wh);
-                b2.handle_box_collision(ww, wh);
-                // // b1.upd_vel(dt);
-                // // b1.upd_vel(dt);
-                b1.upd_pos(dt);
-                b2.upd_pos(dt);
             }
         }
-        d.draw_fps(ww - 90, 15);
     }
 }
