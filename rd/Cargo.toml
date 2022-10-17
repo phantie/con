@@ -9,5 +9,6 @@ edition = "2021"
 itertools = "0.10.5"
 rand = "0.8.5"
 raylib = { version = "3.7" }
+structopt = "0.3.26"
 
 [features]

@@ -2,8 +2,17 @@
 
 Simulation of bouncing circles
 
-## Run
+## Default run
 ```cargo run --example bounce```
+
+## Options
+```
+    --fps <fps>                    Set target frames per second [default: 60]
+-n, --node-number <node-number>    Set node number [default: 40]
+-v, --velocity <velocity>          Set velocity [default: 1.0]
+    --wh <wh>                      Set window height [default: 700]
+    --ww <ww>                      Set window width [default: 700]
+```
 
 ## Requirements
 - Raylib

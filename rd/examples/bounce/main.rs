@@ -11,6 +11,8 @@ use std::rc::Rc;
 use std::vec;
 mod colors;
 use colors::COLORS;
+mod opt;
+use opt::*;
 
 #[derive(Debug)]
 pub struct Bouncer<'n> {
@@ -147,40 +149,43 @@ where
 }
 
 fn main() {
-    const WW: i32 = 700;
-    const WH: i32 = 700;
-    const VEL: f32 = 1.0;
-    const FPS: u32 = 60;
-    const BOUNCER_NUMBER: usize = 40;
+    let opt = Opt::from_args();
+
+    let ww: i32 = opt.ww.into();
+    let wh: i32 = opt.wh.into();
+    let vel: f32 = opt.velocity;
+    let fps: u32 = opt.fps.into();
+    let bouncer_number: usize = opt.node_number.into();
+
     let radiuses: Vec<f32> = (15..=25).step_by(5).map(|n| n as f32).collect();
 
     let mut rng = rand::thread_rng();
-    const DT: f32 = 1f32 / FPS as f32;
+    let dt: f32 = 1f32 / fps as f32;
     let max_r = *radiuses
         .iter()
         .max_by(|f, s| f.partial_cmp(s).unwrap_or(std::cmp::Ordering::Equal))
         .unwrap();
 
     let mut available_positions = {
-        let mut available_positions = gen_available_positions(WW, WH, max_r);
+        let mut available_positions = gen_available_positions(ww, wh, max_r);
         available_positions.shuffle(&mut rng);
         available_positions.into_iter()
     };
 
     let mut bouncers = vec![];
 
-    let nodes = (0..BOUNCER_NUMBER)
+    let nodes = (0..bouncer_number)
         .into_iter()
         .map(|id| Node { id: id as u32 })
         .collect::<Vec<_>>();
 
-    for id in 0..BOUNCER_NUMBER {
+    for id in 0..bouncer_number {
         let bouncer = Bouncer {
             node: &nodes[id],
             pos: available_positions
                 .next()
                 .expect("Not enough available positions on a plot"),
-            vel: norm_random_velocity(&mut rng) * VEL,
+            vel: norm_random_velocity(&mut rng) * vel,
             acc: Vector2::zero(),
             r: pick_random(&mut rng, &radiuses),
             color: pick_random(&mut rng, &COLORS),
@@ -189,9 +194,9 @@ fn main() {
         bouncers.push(bouncer);
     }
 
-    let (mut rl, thread) = raylib::init().size(WW, WH).title("Bouncer").build();
+    let (mut rl, thread) = raylib::init().size(ww, wh).title("Bouncer").build();
 
-    rl.set_target_fps(FPS);
+    rl.set_target_fps(fps);
 
     while !rl.window_should_close() {
         let mut d = rl.begin_drawing(&thread);
@@ -201,12 +206,12 @@ fn main() {
             bouncer.draw(&mut d);
         }
 
-        d.draw_fps(WW - 90, 15);
+        d.draw_fps(ww - 90, 15);
 
         if bouncers.len() == 1 {
             let bouncer = &mut bouncers[0];
-            bouncer.handle_box_collision(WW, WH);
-            bouncer.upd_pos(DT);
+            bouncer.handle_box_collision(ww, wh);
+            bouncer.upd_pos(dt);
         } else {
             for i in 0..bouncers.len() {
                 for j in 0..bouncers.len() {
@@ -220,16 +225,16 @@ fn main() {
                     let b2 = &mut b[j - i - 1];
 
                     if b1.collides_with_other_bouncer(&b2) {
-                        b1.handle_collided_bouncers(b2, VEL);
+                        b1.handle_collided_bouncers(b2, vel);
                         b1.swap_colors(b2);
                     }
 
-                    b1.handle_box_collision(WW, WH);
-                    b2.handle_box_collision(WW, WH);
-                    // // b1.upd_vel(DT);
-                    // // b1.upd_vel(DT);
-                    b1.upd_pos(DT);
-                    b2.upd_pos(DT);
+                    b1.handle_box_collision(ww, wh);
+                    b2.handle_box_collision(ww, wh);
+                    // // b1.upd_vel(dt);
+                    // // b1.upd_vel(dt);
+                    b1.upd_pos(dt);
+                    b2.upd_pos(dt);
                 }
             }
         }
