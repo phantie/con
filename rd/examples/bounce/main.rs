@@ -147,34 +147,34 @@ where
 }
 
 fn main() {
-    let (ww, wh) = (700, 700);
+    const WW: i32 = 700;
+    const WH: i32 = 700;
     const VEL: f32 = 1.0;
-    let fps = 60;
-    let bouncer_number: usize = 40;
-    let radiuses: Vec<_> = (15..=25).step_by(5).map(|n| n as f32).collect();
+    const FPS: u32 = 60;
+    const BOUNCER_NUMBER: usize = 40;
+    let radiuses: Vec<f32> = (15..=25).step_by(5).map(|n| n as f32).collect();
 
     let mut rng = rand::thread_rng();
-    let dt = 1f32 / fps as f32;
+    const DT: f32 = 1f32 / FPS as f32;
     let max_r = *radiuses
         .iter()
         .max_by(|f, s| f.partial_cmp(s).unwrap_or(std::cmp::Ordering::Equal))
         .unwrap();
 
     let mut available_positions = {
-        let mut available_positions = gen_available_positions(ww, wh, max_r);
+        let mut available_positions = gen_available_positions(WW, WH, max_r);
         available_positions.shuffle(&mut rng);
         available_positions.into_iter()
     };
 
     let mut bouncers = vec![];
 
-    let nodes = (0..bouncer_number)
+    let nodes = (0..BOUNCER_NUMBER)
         .into_iter()
         .map(|id| Node { id: id as u32 })
         .collect::<Vec<_>>();
 
-    for id in 0..bouncer_number {
-        #[allow(unused_mut)]
+    for id in 0..BOUNCER_NUMBER {
         let bouncer = Bouncer {
             node: &nodes[id],
             pos: available_positions
@@ -189,9 +189,9 @@ fn main() {
         bouncers.push(bouncer);
     }
 
-    let (mut rl, thread) = raylib::init().size(ww, wh).title("Bouncer").build();
+    let (mut rl, thread) = raylib::init().size(WW, WH).title("Bouncer").build();
 
-    rl.set_target_fps(fps);
+    rl.set_target_fps(FPS);
 
     while !rl.window_should_close() {
         let mut d = rl.begin_drawing(&thread);
@@ -201,12 +201,12 @@ fn main() {
             bouncer.draw(&mut d);
         }
 
-        d.draw_fps(ww - 90, 15);
+        d.draw_fps(WW - 90, 15);
 
         if bouncers.len() == 1 {
             let bouncer = &mut bouncers[0];
-            bouncer.handle_box_collision(ww, wh);
-            bouncer.upd_pos(dt);
+            bouncer.handle_box_collision(WW, WH);
+            bouncer.upd_pos(DT);
         } else {
             for i in 0..bouncers.len() {
                 for j in 0..bouncers.len() {
@@ -224,12 +224,12 @@ fn main() {
                         b1.swap_colors(b2);
                     }
 
-                    b1.handle_box_collision(ww, wh);
-                    b2.handle_box_collision(ww, wh);
-                    // // b1.upd_vel(dt);
-                    // // b1.upd_vel(dt);
-                    b1.upd_pos(dt);
-                    b2.upd_pos(dt);
+                    b1.handle_box_collision(WW, WH);
+                    b2.handle_box_collision(WW, WH);
+                    // // b1.upd_vel(DT);
+                    // // b1.upd_vel(DT);
+                    b1.upd_pos(DT);
+                    b2.upd_pos(DT);
                 }
             }
         }
