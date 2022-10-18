@@ -2,8 +2,8 @@ use connect::*;
 use raylib::prelude::*;
 
 #[derive(Debug)]
-pub struct Bouncer<'n> {
-    pub node: &'n Node,
+pub struct Bouncer {
+    pub node: Node,
     pub pos: Vector2,
     pub vel: Vector2,
     pub acc: Vector2,
@@ -11,13 +11,13 @@ pub struct Bouncer<'n> {
     pub color: Color,
 }
 
-impl<'n> RefNode for Bouncer<'n> {
+impl RefNode for Bouncer {
     fn node_ref(&self) -> &Node {
         &self.node
     }
 }
 
-impl<'n> Bouncer<'n> {
+impl Bouncer {
     pub fn draw(&self, d: &mut RaylibDrawHandle) {
         d.draw_circle(self.pos.x as i32, self.pos.y as i32, self.r, self.color);
     }

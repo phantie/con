@@ -4,6 +4,8 @@ pub trait RefNode {
 
 #[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Node {
+    // id type supposedly should be generic,
+    // once I figure out contexts of Node applications
     pub id: u32,
 }
 

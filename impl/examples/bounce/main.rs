@@ -34,14 +34,9 @@ fn main() {
 
     let mut bouncers = vec![];
 
-    let nodes = (0..bouncer_number)
-        .into_iter()
-        .map(|id| Node { id: id as u32 })
-        .collect::<Vec<_>>();
-
     for id in 0..bouncer_number {
         let bouncer = Bouncer {
-            node: &nodes[id],
+            node: Node { id: id as u32 },
             pos: available_positions
                 .next()
                 .expect("Not enough available positions on a plot"),
@@ -73,6 +68,9 @@ fn main() {
             bouncer.handle_box_collision(ww, wh);
             bouncer.upd_pos(dt);
         } else {
+            // iterate over every connection pair
+            // partically, these are permutations without replacements
+            // NOTE might be optimized using plenty of available algorithms
             for i in 0..bouncers.len() {
                 for j in 0..bouncers.len() {
                     if i == j || i > j {
